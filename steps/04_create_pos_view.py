@@ -16,6 +16,8 @@ import snowflake.snowpark.functions as F
 
 
 def create_pos_view(session):
+    session.use_warehouse("HOL_WH")  
+    session.use_database("HOL_DB")
     session.use_schema('HARMONIZED')
     order_detail = session.table("RAW_POS.ORDER_DETAIL").select(F.col("ORDER_DETAIL_ID"), \
                                                                 F.col("LINE_NUMBER"), \
@@ -59,7 +61,7 @@ def create_pos_view(session):
     # menu = session.table("RAW_POS.MENU")
     # franchise = session.table("RAW_POS.FRANCHISE")
     # location = session.table("RAW_POS.LOCATION")
-
+   
     t_with_f = truck.join(franchise, truck['FRANCHISE_ID'] == franchise['FRANCHISE_ID'], rsuffix='_f')
     oh_w_t_and_l = order_header.join(t_with_f, order_header['TRUCK_ID'] == t_with_f['TRUCK_ID'], rsuffix='_t') \
                                 .join(location, order_header['LOCATION_ID'] == location['LOCATION_ID'], rsuffix='_l')
@@ -94,11 +96,14 @@ def create_pos_view(session):
 
 def create_pos_view_stream(session):
     session.use_schema('HARMONIZED')
+
     _ = session.sql('CREATE OR REPLACE STREAM POS_FLATTENED_V_STREAM \
                         ON VIEW POS_FLATTENED_V \
                         SHOW_INITIAL_ROWS = TRUE').collect()
 
 def test_pos_view(session):
+    session.use_warehouse("HOL_WH")  
+    session.use_database("HOL_DB")
     session.use_schema('HARMONIZED')
     tv = session.table('POS_FLATTENED_V')
     tv.limit(5).show()

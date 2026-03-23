@@ -92,6 +92,7 @@ def merge_daily_city_metrics(session):
     _ = session.sql('ALTER WAREHOUSE HOL_WH SET WAREHOUSE_SIZE = XSMALL').collect()
 
 def main(session: Session) -> str:
+
     # Create the DAILY_CITY_METRICS table if it doesn't exist
     if not table_exists(session, schema='ANALYTICS', name='DAILY_CITY_METRICS'):
         create_daily_city_metrics_table(session)
@@ -106,9 +107,10 @@ def main(session: Session) -> str:
 # Be aware you may need to type-convert arguments if you add input parameters
 if __name__ == '__main__':
     # Create a local Snowpark session
+
     with Session.builder.getOrCreate() as session:
-        import sys
-        if len(sys.argv) > 1:
-            print(main(session, *sys.argv[1:]))  # type: ignore
-        else:
+  #      import sys
+   #     if len(sys.argv) > 1:
+    #        print(main(session, *sys.argv[1:]))  # type: ignore
+     #   else:
             print(main(session))  # type: ignore

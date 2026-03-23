@@ -23,7 +23,10 @@ TABLE_DICT = {
 # SNOWFLAKE ADVANTAGE: Snowflake Tables (not file-based)
 
 def load_raw_table(session, tname=None, s3dir=None, year=None, schema=None):
+    session.use_warehouse("HOL_WH")  
+    session.use_database("HOL_DB")
     session.use_schema(schema)
+
     if year is None:
         location = "@external.frostbyte_raw_stage/{}/{}".format(s3dir, tname)
     else:
@@ -31,8 +34,8 @@ def load_raw_table(session, tname=None, s3dir=None, year=None, schema=None):
         location = "@external.frostbyte_raw_stage/{}/{}/year={}".format(s3dir, tname, year)
     
     # we can infer schema using the parquet read option
-    df = session.read.option("compression", "snappy") \
-                            .parquet(location)
+    #df = session.read.parquet(location)
+    df = session.read.option("compression", "snappy").parquet(location)      
     df.copy_into_table("{}".format(tname))
     comment_text = '''{"origin":"sf_sit-is","name":"snowpark_101_de","version":{"major":1, "minor":0},"attributes":{"is_quickstart":1, "source":"sql"}}'''
     sql_command = f"""COMMENT ON TABLE {tname} IS '{comment_text}';"""
@@ -72,4 +75,4 @@ if __name__ == "__main__":
     # Create a local Snowpark session
     with Session.builder.getOrCreate() as session:
         load_all_raw_tables(session)
-#        validate_raw_tables(session)
+        validate_raw_tables(session)

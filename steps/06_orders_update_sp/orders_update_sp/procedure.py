@@ -42,6 +42,9 @@ def merge_order_updates(session):
     _ = session.sql('ALTER WAREHOUSE HOL_WH SET WAREHOUSE_SIZE = XSMALL').collect()
 
 def main(session: Session) -> str:
+   # session.use_warehouse("HOL_WH")
+   # session.use_database("HOL_DB")
+    #session.use_schema("HARMONIZED")
     # Create the ORDERS table and ORDERS_STREAM stream if they don't exist
     if not table_exists(session, schema='HARMONIZED', name='ORDERS'):
         create_orders_table(session)
@@ -59,8 +62,4 @@ def main(session: Session) -> str:
 if __name__ == '__main__':
     # Create a local Snowpark session
     with Session.builder.getOrCreate() as session:
-        import sys
-        if len(sys.argv) > 1:
-            print(main(session, *sys.argv[1:]))  # type: ignore
-        else:
             print(main(session))  # type: ignore
